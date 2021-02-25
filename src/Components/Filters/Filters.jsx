@@ -14,6 +14,24 @@ const useStyles = makeStyles({
     }
 });
 
+const simpleInput = (payload, e) => {
+    return {
+        type: 'simpleInput',
+        payload,
+        value: e.target.value
+    }
+}
+
+
+const dateInput = (payload, e) => {
+    return {
+        type: 'dateInput',
+        payload,
+        value: checkTime(e.target.value)
+    }
+}
+
+
 const apiKey = "apiKey=0ec2062ccddc4214aac99c27c8ee6d0a";
 
 
@@ -65,9 +83,7 @@ function Filters(props) {
     const configTopHeadlines = createConfigTopHeadlines(props);
     const configEverything = createConfigEverything(props);
 
-    function onChangeHotTopics(e) {
-        props.setSelectedEndpoint(e.target.value)
-    }
+
 
     function onChangeCountry(e) {
         props.setSelectCountry(e.target.value)
@@ -85,17 +101,6 @@ function Filters(props) {
         props.setSelectSortBy(e.target.value)
     }
 
-    function onChangeSearch(e) {
-        props.setSearch(e.target.value)
-    }
-
-    function onChangeDateFrom(e) {
-        props.setSelectDateFrom(checkTime(e.target.value))
-    }
-
-    function onChangeDateTo(e) {
-        props.setSelectDateTo(checkTime(e.target.value))
-    }
 
     function onSubmitHandler(e) {
         e.preventDefault();
@@ -126,8 +131,8 @@ function Filters(props) {
                 id="outlined-select-currency"
                 select
                 label="Hot topics"
-                value={props.selectedEndpoint}
-                onChange={onChangeHotTopics}
+                value={props.formData.selectedEndpoint}
+                onChange={(e) => props.dispatch(simpleInput('selectedEndpoint', e))}
                 variant="outlined"
             >
                 <MenuItem value="top-headlines">Top Headlines</MenuItem>
@@ -144,12 +149,12 @@ function Filters(props) {
                     type="text"
                     variant="outlined"
                     label="Search"
-                    onChange={onChangeSearch}
-                    value={props.search}
+                    onChange={(e) => props.dispatch(simpleInput('q', e))}
+                    value={props.formData.q}
 
                 />
 
-                {props.selectedEndpoint === "top-headlines" ?
+                {props.formData.selectedEndpoint === "top-headlines" ?
 
                     <>
 
@@ -198,8 +203,8 @@ function Filters(props) {
                             id="date-from"
                             label="Date From"
                             type="date"
-                            value={props.selectDateFrom}
-                            onChange={onChangeDateFrom}
+                            value={props.formData.from}
+                            onChange={(e) => props.dispatch(dateInput('from', e))}
                             variant="outlined"
                             InputLabelProps={{
                                 shrink: true,
@@ -210,8 +215,8 @@ function Filters(props) {
                             id="date-to"
                             label="Date To"
                             type="date"
-                            value={props.selectDateTo}
-                            onChange={onChangeDateTo}
+                            value={props.formData.selectDateTo}
+                            onChange={(e) =>  props.dispatch(dateInput('to', e))}
                             variant="outlined"
                             InputLabelProps={{
                                 shrink: true,
@@ -224,7 +229,7 @@ function Filters(props) {
                             select
                             value={props.selectLanguage}
                             variant="outlined"
-                            onChange={onChangeSelectLanguage}
+                            onChange={(e) => props.dispatch(simpleInput('language', e)) }
                         >
                             <MenuItem value="en">English</MenuItem>
                             <MenuItem value="ru">Russian</MenuItem>

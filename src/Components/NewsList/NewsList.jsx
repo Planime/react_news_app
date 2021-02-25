@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import React from 'react'
 import Article from './Article/Article'
 
 function NewsList(props) {
@@ -24,7 +25,7 @@ function NewsList(props) {
     )
 }
 
-export default NewsList
+export default React.memo(NewsList)
 
 NewsList.propTypes = {
     newsList: PropTypes.array,
