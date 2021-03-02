@@ -37,6 +37,7 @@ function createConfigEverything(props) {
         "to": props.selectDateTo,
         language: props.selectLanguage,
         sortBy: props.selectSortBy
+
     }
 }
 
