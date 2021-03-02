@@ -1,5 +1,6 @@
 import React from "react"
 import {makeStyles} from '@material-ui/core/styles';
+import {simpleInput, dateInput} from '../actions'
 
 import {InputLabel, Select, MenuItem, FormControl, TextField, Button} from '@material-ui/core/';
 
@@ -14,51 +15,20 @@ const useStyles = makeStyles({
     }
 });
 
-const simpleInput = (payload, e) => {
-    return {
-        type: 'simpleInput',
-        payload,
-        value: e.target.value
-    }
-}
-
-
-const dateInput = (payload, e) => {
-    return {
-        type: 'dateInput',
-        payload,
-        value: checkTime(e.target.value)
-    }
-}
 
 
 const apiKey = "apiKey=0ec2062ccddc4214aac99c27c8ee6d0a";
 
 
-function createConfigTopHeadlines(props) {
+function createConfigTopHeadlines({country, category, q}) {
+
     return {
-        country: props.selectCountry,
-        category: props.selectCategory,
-        q: props.search
+        country,
+        category,
+        q
     };
 }
 
-function timeConvert(n) {
-    let today = n ? new Date(n) : new Date();
-    let dd = String(today.getDate()).padStart(2, '0');
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    let yyyy = today.getFullYear();
-    return yyyy + '-' + mm + '-' + dd;
-}
-
-function checkTime(d) {
-    let minDate = new Date().getTime() - 2419200000;
-    if (new Date(d).getTime() < minDate) {
-        return timeConvert()
-    } else {
-        return timeConvert(new Date(d).getTime())
-    }
-}
 
 function createConfigEverything(props) {
     return {
@@ -80,26 +50,19 @@ function createConfigUrl(config) {
 
 function Filters(props) {
     const classes = useStyles();
-    const configTopHeadlines = createConfigTopHeadlines(props);
-    const configEverything = createConfigEverything(props);
+    const configTopHeadlines = createConfigTopHeadlines(props.formData);
+    const configEverything = createConfigEverything(props.formData);
 
 
 
-    function onChangeCountry(e) {
-        props.setSelectCountry(e.target.value)
-    }
-
-    function onChangeCategory(e) {
-        props.setSelectCategory(e.target.value)
-    }
-
-    function onChangeSelectLanguage(e) {
-        props.setSelectLanguage(e.target.value)
-    }
-
-    function onChangeSelectSortBy(e) {
-        props.setSelectSortBy(e.target.value)
-    }
+    // function onChangeCategory(e) {
+    //     props.setSelectCategory(e.target.value)
+    // }
+    //
+    //
+    // function onChangeSelectSortBy(e) {
+    //     props.setSelectSortBy(e.target.value)
+    // }
 
 
     function onSubmitHandler(e) {
@@ -162,9 +125,9 @@ function Filters(props) {
                         <TextField
                             label="Country"
                             select
-                            value={props.selectCountry}
+                            value={props.formData.country}
                             id="outlined-select-country"
-                            onChange={onChangeCountry}
+                            onChange={(e) => (props.dispatch(simpleInput('country', e)))}
                             variant="outlined"
                         >
                             <MenuItem value="us">USA</MenuItem>
@@ -176,8 +139,8 @@ function Filters(props) {
                         <TextField
                             select
                             label="Category"
-                            value={props.selectCategory}
-                            onChange={onChangeCategory}
+                            value={props.formData.category}
+                            onChange={(e) => (props.dispatch(simpleInput('category', e)))}
                             id="outlined-select-category"
                             variant="outlined"
                         >
@@ -227,7 +190,7 @@ function Filters(props) {
                         <TextField
                             label="Language"
                             select
-                            value={props.selectLanguage}
+                            value={props.formData.language}
                             variant="outlined"
                             onChange={(e) => props.dispatch(simpleInput('language', e)) }
                         >
@@ -241,9 +204,9 @@ function Filters(props) {
                         <TextField
                             select
                             label="Sort by"
-                            value={props.selectSortBy}
+                            value={props.formData.sortBy}
                             variant="outlined"
-                            onChange={onChangeSelectSortBy}
+                            onChange={(e) => props.dispatch(simpleInput('sortBy', e))}
                         >
                             <MenuItem value="relevancy">Relevancy</MenuItem>
                             <MenuItem value="popularity">Popularity</MenuItem>
