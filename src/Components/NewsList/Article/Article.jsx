@@ -1,23 +1,42 @@
 import React from "react"
+import PropTypes from 'prop-types';
 
 
-function Article (props) {
+function Article ({
+    article: {
+        urlToImage,
+        title,
+        content,
+        url,
+        author,
+        publishedAt
+
+    }
+                  }) {
     return(
 
 
         <li>
             <img className="article_img"
-                 src={props.article.urlToImage}
+                 src={urlToImage}
                  alt=""/>
-            <h2 className="article_title">{props.article.title}</h2>
-            <div className="article_content">{props.article.content}</div>
-            <a href={props.article.url}
+            <h2 className="article_title">{title}</h2>
+            <div className="article_content">{content}</div>
+            <a href={url}
                target="_blank"
                rel='noopener noreferrer'>View full article</a>
-            <p className="article_author">Author: {props.article.author}</p>
-            <p className="article_published_date">Published date: {props.article.publishedAt}</p>
+            <p className="article_author">Author: {author}</p>
+            <p className="article_published_date">Published date: {publishedAt}</p>
         </li>
     )
 }
 
 export default Article
+
+Article.propTypes = {
+    article: PropTypes.object
+};
+
+Article.defaultProps = {
+    article: {}
+};

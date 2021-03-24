@@ -1,8 +1,13 @@
-import React from "react"
+import React, {useContext} from "react"
 import {makeStyles} from '@material-ui/core/styles';
-import {simpleInput, dateInput} from '../actions'
+import {simpleInput, dateInput} from '../actions';
+import useSubmit from "./useSubmit/useSubmit";
+import FieldsEverything from "./FieldsEverything/FieldsEverything"
+import FieldsTopHeadLines from "./FieldsTopHeadLines/FieldsTopHeadLines"
+import PropTypes from 'prop-types';
+import FilterContext from '../../Context/FilterContext';
 
-import {InputLabel, Select, MenuItem, FormControl, TextField, Button} from '@material-ui/core/';
+import { MenuItem,  TextField} from '@material-ui/core/';
 
 const useStyles = makeStyles({
     input: {
@@ -16,87 +21,24 @@ const useStyles = makeStyles({
 });
 
 
-
-const apiKey = "apiKey=0ec2062ccddc4214aac99c27c8ee6d0a";
-
-
-function createConfigTopHeadlines({country, category, q}) {
-
-    return {
-        country,
-        category,
-        q
-    };
-}
-
-
-function createConfigEverything(props) {
-    return {
-        q: props.search,
-        "from": props.selectDateFrom,
-        "to": props.selectDateTo,
-        language: props.selectLanguage,
-        sortBy: props.selectSortBy
-
-    }
-}
-
-function createConfigUrl(config) {
-    return Object.entries(config)
-        .filter(obj => obj[1].length >= 1)
-        .map(obj => obj.join("="))
-        .join("&")
-}
-
-
-function Filters(props) {
+function Filters() {
     const classes = useStyles();
-    const configTopHeadlines = createConfigTopHeadlines(props.formData);
-    const configEverything = createConfigEverything(props.formData);
+    const {formData, setNewsList, dispatch} = useContext(FilterContext) ;
 
-
-
-    // function onChangeCategory(e) {
-    //     props.setSelectCategory(e.target.value)
-    // }
-    //
-    //
-    // function onChangeSelectSortBy(e) {
-    //     props.setSelectSortBy(e.target.value)
-    // }
-
-
-    function onSubmitHandler(e) {
-        e.preventDefault();
-
-        if (props.selectedEndpoint === "everything") {
-
-
-            fetch(`https://newsapi.org/v2/everything?${createConfigUrl(configEverything)}&${apiKey}`)
-                .then(res => res.json())
-                .then(res => props.setNewsList(res.articles))
-
-        }
-        else {
-
-            let urlTopHeadlines = `https://newsapi.org/v2/top-headlines?${createConfigUrl(configTopHeadlines)}&${apiKey}`;
-
-            fetch(urlTopHeadlines)
-                .then(res => res.json())
-                .then(res => props.setNewsList(res.articles))
-        }
-    }
+    const onSubmitHandler = useSubmit(formData, setNewsList);
 
     return (
-        <FormControl>
+        <form
+            onSubmit={onSubmitHandler}
+        >
 
             <TextField
                 className={classes.input}
                 id="outlined-select-currency"
                 select
                 label="Hot topics"
-                value={props.formData.selectedEndpoint}
-                onChange={(e) => props.dispatch(simpleInput('selectedEndpoint', e))}
+                value={formData.selectedEndpoint}
+                onChange={(e) => dispatch(simpleInput('selectedEndpoint', e))}
                 variant="outlined"
             >
                 <MenuItem value="top-headlines">Top Headlines</MenuItem>
@@ -107,131 +49,56 @@ function Filters(props) {
             <div className="filters_wrapper">
 
                 <TextField
-                    required={props.selectedEndpoint === "everything"}
+                    required={formData.selectedEndpoint === "everything"}
                     id="search-field"
                     className="search_input"
                     type="text"
                     variant="outlined"
                     label="Search"
-                    onChange={(e) => props.dispatch(simpleInput('q', e))}
-                    value={props.formData.q}
+                    onChange={(e) => dispatch(simpleInput('q', e))}
+                    value={formData.q}
 
                 />
 
-                {props.formData.selectedEndpoint === "top-headlines" ?
+                {formData.selectedEndpoint === "top-headlines" ?
 
-                    <>
-
-
-                        <TextField
-                            label="Country"
-                            select
-                            value={props.formData.country}
-                            id="outlined-select-country"
-                            onChange={(e) => (props.dispatch(simpleInput('country', e)))}
-                            variant="outlined"
-                        >
-                            <MenuItem value="us">USA</MenuItem>
-                            <MenuItem value="ru">Russia</MenuItem>
-                            <MenuItem value="de">Germany</MenuItem>
-                        </TextField>
-
-
-                        <TextField
-                            select
-                            label="Category"
-                            value={props.formData.category}
-                            onChange={(e) => (props.dispatch(simpleInput('category', e)))}
-                            id="outlined-select-category"
-                            variant="outlined"
-                        >
-                            <MenuItem value="business">Business</MenuItem>
-                            <MenuItem value="entertainment">Entertainment</MenuItem>
-                            <MenuItem value="general">General</MenuItem>
-                            <MenuItem value="health">Health</MenuItem>
-                            <MenuItem value="science">Science</MenuItem>
-                            <MenuItem value="sports">Sports</MenuItem>
-                            <MenuItem value="technology">Technology</MenuItem>
-                        </TextField>
-
-
-                    </>
+                    <FieldsTopHeadLines />
 
 
                     :
 
-                    <>
-
-
-                        <TextField
-                            id="date-from"
-                            label="Date From"
-                            type="date"
-                            value={props.formData.from}
-                            onChange={(e) => props.dispatch(dateInput('from', e))}
-                            variant="outlined"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-
-                        <TextField
-                            id="date-to"
-                            label="Date To"
-                            type="date"
-                            value={props.formData.selectDateTo}
-                            onChange={(e) =>  props.dispatch(dateInput('to', e))}
-                            variant="outlined"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-
-
-                        <TextField
-                            label="Language"
-                            select
-                            value={props.formData.language}
-                            variant="outlined"
-                            onChange={(e) => props.dispatch(simpleInput('language', e)) }
-                        >
-                            <MenuItem value="en">English</MenuItem>
-                            <MenuItem value="ru">Russian</MenuItem>
-                            <MenuItem value="de">German</MenuItem>
-
-                        </TextField>
-
-
-                        <TextField
-                            select
-                            label="Sort by"
-                            value={props.formData.sortBy}
-                            variant="outlined"
-                            onChange={(e) => props.dispatch(simpleInput('sortBy', e))}
-                        >
-                            <MenuItem value="relevancy">Relevancy</MenuItem>
-                            <MenuItem value="popularity">Popularity</MenuItem>
-                            <MenuItem value="publishedAt">PublishedAt</MenuItem>
-
-                        </TextField>
-
-
-                    </>
+                    <FieldsEverything />
                 }
 
-                <Button
-                    variant="contained"
-                    onClick={onSubmitHandler}
-                    color="secondary">
+                <button
+                    className="btn_submit"
+                    >
                     Search
-                </Button>
-
-
+                </button>
             </div>
-        </FormControl>
+        </form>
     )
 }
 
 export default Filters
 
 
+Filters.propTypes = {
+    formData: PropTypes.object.isRequired,
+    setNewsList: PropTypes.func,
+    dispatch: PropTypes.func
+
+};
+
+Filters.defaultProps = {
+    formData: {
+        selectedEndpoint: 'top-headlines',
+        q: '',
+        from: '',
+        to: '',
+        language: 'en',
+        country: "us",
+        category: "health",
+        sortBy: "relevancy"
+    },
+};
